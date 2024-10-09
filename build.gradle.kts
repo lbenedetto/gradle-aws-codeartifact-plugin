@@ -1,8 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
-    id("com.gradle.plugin-publish") version "0.12.0"
+    id("com.gradle.plugin-publish") version "1.3.0"
 }
 
 
@@ -23,7 +25,7 @@ val awsSdkVersion = project.extra["aws.sdk.version"] as String
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
 
-    implementation("org.unbroken-dome.aws-codeartifact-maven-proxy:aws-codeartifact-maven-proxy:0.3.0") {
+    implementation("org.unbroken-dome.aws-codeartifact-maven-proxy:aws-codeartifact-maven-proxy:0.4.0") {
         exclude(group = "org.jetbrains.kotlin")
     }
 
@@ -32,32 +34,23 @@ dependencies {
 
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
-}
-
-
-gradlePlugin {
-
-    plugins {
-        create("codeArtifact") {
-            id = "org.unbroken-dome.aws.codeartifact"
-            implementationClass = "org.unbrokendome.gradle.plugins.aws.codeartifact.AwsCodeArtifactPlugin"
-        }
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
 
-pluginBundle {
+gradlePlugin {
     val githubUrl = project.extra["github.url"] as String
-
     website = githubUrl
     vcsUrl = githubUrl
-    description = "A Gradle plugin for using AWS CodeArtifact repositories"
-    tags = listOf("codeartifact")
-
-    (plugins) {
-        "codeArtifact" {
+    plugins {
+        create("codeArtifact") {
+            description = "A Gradle plugin for using AWS CodeArtifact repositories"
             displayName = "AWS CodeArtifact plugin"
+            id = "org.unbroken-dome.aws.codeartifact"
+            implementationClass = "org.unbrokendome.gradle.plugins.aws.codeartifact.AwsCodeArtifactPlugin"
+            tags = listOf("codeartifact")
         }
     }
 }
